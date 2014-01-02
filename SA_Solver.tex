@@ -1,0 +1,125 @@
+\documentclass[twocolumn]{article}
+\usepackage{epsfig}
+\usepackage{psfig}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{times}
+\usepackage{amsmath}
+
+\usepackage[colorlinks,linkcolor=red,anchorcolor=blue,citecolor=green]{hyperref}
+\newcommand{\SA}{Simulated Annealing~}
+\begin{document}
+
+\title{{\bf The Application of Simulated Annealing in Polynomial Solver}\\ }
+
+\author{Xin Wang\\ \vspace{0.5cm}\\
+ 10302010023}
+
+\date{}
+\maketitle
+\begin{abstract}
+\SA is a widely-adopted physical computing algorithm, which is a suitable candidate to estimate the extreme point of a cost function. This paper proposes two versions of Simulated Annealing Solver to polynomial extreme points implemented in floating point number and fixed point number respectively. Moreover, I give the execution statistics of both two versions and the error rate of the fixed point one to explore the potential of performance increase.
+\end{abstract}
+
+\section{Introduction}
+\label{intro}
+\SA is a typical natural computing algorithm whose name is inspired from  annealing in metallurgy, a technique involving heating and controlled cooling of a material to increase the size of its crystals and reduce their defects, both are attributes of the material that depend on its thermodynamic free energy.\SA is a generic probabilistic meta-heuristic for the global optimization problem of locating a good approximation to the global optimum of a given function in a large search space. It is widely used when search space is discrete. For certain problems, simulated annealing may be more efficient than exhaustive enumeration provided that the goal is merely to find an acceptably good solution in a fixed amount of time, rather than the best possible solution. In engineering and scientific calculation, \SA is frequently adopted in network traffic engineering~\cite{Pasias:2004}, environmental science~\cite{Jingwen:2009}, sensor network~\cite{Zimmerman:2007}, EDA placement design~\cite{Naifeng:2011}, etc. Within these domains, \SA is widely adopted for its stochastic way of addressing the global optimal in a given range, which could save much computational resource while the precision is controllable and sufficient for the engineering requirements.
+
+Given the fact that \SA is suitable for determining an optimal solution with tolerable error rate, it would be efficient to calculate the near optimum solution in polynomial equation with determined range. As a matter of fact, both \SA and Genetic Algorithm are frequently-used approaches in searching the global optimal solution in linear algebra problems~\cite{Chen:1998} based on their capability to estimate the near optimal solution of liner polynomial equations and this would be a hotspot in future research.
+
+This paper attempts to implement a polynomial equation solver based on \SA approach. I define a series of input data sets with different sizes and computation loads to comprise a benchmark dataset. Then, considering the real-time running environments, I evaluate the \SA polynomial solver using several code instrument tools and performance analysers to illustrate the workload of \SA solver. Furthermore, given that the polynomial solver problems are often defined in real number domain while the floating point operation is one of the most time-consuming and power-cost part in a computation-intensive program~\cite{DaiChen:2013}, I also implement the comparing version using fixed point units and explore the performance increase and the sacrifice of accuracy in order to make trade-offs between performance and accuracy.
+
+The rest of this paper is organized as follows, Section~\ref{sec:related} relates the background knowledge and related work of \SA solvers. Section~\ref{sec:solver} elaborates the design of the proposed \SA solver including the data format, usage, parameters, and the fixed-point version for comparison. Section~\ref{sec:experiment} presents the experimental statistics and analyzes the results. Section~\ref{sec:discussion} discusses the insights attained from the experiments and proposes some suggestions for optimization. Finally, Section~\ref{sec:conclusion} draws the conclusion of this paper.
+\section{Related Work}
+\label{sec:related}
+\subsection{Mechanism of \SA}
+
+\subsection{Existing \SA Solvers}
+
+\section{Polynomial Equation Solvers}
+\label{sec:solver}
+\subsection{Design Overview}
+
+\subsection{Input Data}
+
+\subsection{Parameters}
+
+\subsection{Comparing Version}
+
+\section{Experiment and Analysis}
+\label{sec:experiment}
+
+\subsection{Experiment Setup}
+
+\subsection{Computation Resource}
+
+\subsection{Memory Footprint}
+
+\subsection{Comparison of Two Versions}
+
+\section{Discussion}
+\label{sec:discussion}
+
+\section{Conclusion and Future Work}
+\label{sec:conclusion}
+\begin{equation}
+\label{SA_prob}
+P=
+\begin{cases}
+1 & if(\Delta E < 0) \\
+e^{-\frac{\Delta E}{T}}&otherwise \\
+\end{cases}
+\end{equation}
+
+
+
+
+
+\begin{figure}
+\centering
+\includegraphics[width=0.50\textwidth]{trail.pdf}
+\caption{Dynamic Ant Trail.}
+\label{fig:trail}
+\end{figure}
+
+\begin{equation} New\ Node\ =\ Codon\ value\ \%\ Number\ of\ rules\ for\ NT
+\label{eq1}
+\end{equation}
+
+\begin{table}
+\caption{Parameter settings adopted on all problems examined} % title of Table
+\centering      % used for centering table
+\begin{tabular}{l|c}  % centered columns
+\hline                      %inserts double horizontal lines
+{\bf Parameter}&{\bf Value}\\
+%heading
+\hline                    % inserts single horizontal line
+Total Evaluations & 100,000\\
+Evals per cycle & 500, 2500, 5000, 10,000\\
+Generations & 200\\
+Population size & 500\\
+Replacement strategy & Generational with elitism (10\%)\\
+Selection & Tournament size=5\\
+Mutation probability & 0.02 (integer mutation)\\
+Crossover probability & 0.9 (variable single point)\\
+Initial chromosome length & 100 codons (random init)\\
+\hline     %inserts single line
+\end{tabular}
+\label{table:params}
+ \end{table}
+
+\section{Compiling}
+
+If you are using a GUI, this document should compile automatically. Otherwise,
+you can either use pdflatex or latex and dvi2ps to compile your report, along
+with bibtex to process your bibliography file.
+
+%ACKNOWLEDGEMENTS are optional
+\section{Acknowledgements}
+People you might want to acknowledge.
+
+\bibliographystyle{abbrv}
+\bibliography{biblio}
+
+\end{document}
+
