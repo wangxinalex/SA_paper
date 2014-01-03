@@ -1,0 +1,17 @@
+\section{Related Work}
+\label{sec:related}
+\subsection{Mechanism of \SA}
+As is mentioned in Section~\ref{sec:intro}, \SA algorithm is inspired from the natural process of gradual cooling of a melted solid to obtain the minimum energy value. This energy is equivalent to the objective function value in a conventional optimization problem.
+
+Generally, \SA algorithm consists of three operations: generation, acceptance and cooling. Similar to genetic algorithm, \SA also includes the concept of generation. The generation operation changes the current solution $x$ and generates the next solution $x'$
+
+
+\begin{equation}
+\label{eq:SA_prob}
+P=
+\begin{cases}
+1 & if(\Delta E < 0) \\
+e^{-\frac{\Delta E}{T}}&otherwise \\
+\end{cases}
+\end{equation}
+\subsection{Existing \SA Solvers}
