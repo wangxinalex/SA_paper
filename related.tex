@@ -3,8 +3,7 @@
 \subsection{Mechanism of \SA}
 As is mentioned in Section~\ref{sec:intro}, \SA algorithm is inspired from the natural process of gradual cooling of a melted solid to obtain the minimum energy value. This energy is equivalent to the objective function value in a conventional optimization problem.
 
-Generally, \SA algorithm consists of three operations: generation, acceptance and cooling. Similar to genetic algorithm, \SA also includes the concept of generation. The generation operation changes the current solution $x$ and generates the next solution $x'$
-
+Generally, \SA algorithm consists of three operations: generation, acceptance and cooling. Similar to genetic algorithm, \SA also includes the concept of generation. The generation operation changes the current solution $x$ and generates the next solution $x'$ using a probability distribution known as Maxwell-Boltzmann distribution. The acceptance operation decides whether the temperature change is acceptable. The acceptance is determined from the difference $\Delta E = E'-E$ of the current energy $\Delta E = f(x)$ and the energy of the next solution $\Delta E = f(x')$ as well as the temperature parameter T. The simplified algorithm shown in Equation~\ref{eq:SA_prob} provides a efficient simulation of the Boltzmann distribution~\cite{Hiroyasu:2010}.
 
 \begin{equation}
 \label{eq:SA_prob}
@@ -14,4 +13,7 @@ P=
 e^{-\frac{\Delta E}{T}}&otherwise \\
 \end{cases}
 \end{equation}
+
+Firstly, the change is acceptable if $\Delta E < 0$. Otherwise the change would be accepted according to a certain probability. The cooling operation generates the temperature of the next state from the temperature with the decreasing coefficient defined by a constant $\lambda$. From the equation we could observed that the probability decreases with the lowering of temperature. Thus at the beginning of the simulation, both the temperature and the probability of accepting a higher energy are high, correspondent with the natural process of cooling a melted metal. The probability of accepting a higher energy state is vital to the \SA simulation since the fundamental of \SA algorithm is to jump out of local optimal point and find the global optimal solution.
 \subsection{Existing \SA Solvers}
+\SA solvers exist widely in scientific and engineering domain to search for the optimal solution of problem related with linear algebra. The most pervasive \SA solver is the Adaptive Simulates Annealing (ASA) developed by Lester Ingber et al.~\cite{Lester:2013}. ASA is a C-language code developed to statistically find the best global fit of a nonlinear constrained non-convex cost-function over a D-dimensional space. Yet ASA is an integrated toolset for general usage and users need to change the source code and recompile the entire program when they need to solve their own problems. Matlab mathematical software also provides some tiny toolboxes for \SA solvers, some of them concentrate on polynomial equation solver~\cite{Matlab:2009} based on stochastic search in linear algebra space yet these toolsets are developed in Matlab language and could only run under the framework of Matlab software. 
