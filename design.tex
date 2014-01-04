@@ -7,13 +7,15 @@ A typical record in the input data file is like this:
 $$[-9397.819, 602.181] -799.515 -687.799 -411.936$$
 The two numbers in the brackets define the domain of the extreme point, i.e. the solver would only search the optimal solution within this domain. The following several numbers define the coefficients in descending order. For instance, the record above indicates an equation of:
 $$f(x) = -799.515x^2-687.799x-411.936$$
-where $x\in[-9397.819, 602.181]$. Similarly, the format of the output is like this:
+where $x\in[-9397.819, 602.181]$. The format of input data is very simple thus users could easily add the coefficients of their own polynomial equations.
+
+Similarly, the format of the output is like this:
 $$x = -0.986, cost(x) = -2.928e+03$$
 This means the optimal solution and the corresponding cost of the function.
 \subsection{Parameters}
 The usage of the main program is as follows:
 \begin{verbatim}
-./anneal <input_file> <output_file> 
+./anneal <input_file> <output_file>
   [--options]
 \end{verbatim}
 The meaning of each domain is explained as follows:

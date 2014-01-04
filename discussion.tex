@@ -1,2 +1,9 @@
 \section{Discussion}
-\label{sec:discussion}
+\label{sec:discussion} 
+As is analyzed in Section~\ref{sec:experiment}, the \SA solver is basically a computation-intensive program while the requirement on cache and memory is not very high when text-based input file is adopted. From the statistics we could get the following insights:
+\begin{compactitem}
+\item Memory and branch/call instructions are both important contributors to low pipeline fetch efficiency. Besides more sophisticated branch prediction strategy should be further explored in future work.
+\item Low ILP and MLP value implies that the \SA solver could behave well using in-order processors, which could save much expense on chip placement.
+\item Floating point operations could not be substituted completely by fixed point ones.
+\item \SA solver is basically computation-intensive rather than memory-intensive. Clock frequency and the performance of on-chip cache are still fundamental factors.
+\end{compactitem}  

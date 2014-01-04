@@ -40,7 +40,9 @@ In order to excavate the parallelism potential of the \SA solver, I measured the
 \end{figure}
 
 \subsubsection{IPB}
-Instruction per byte of input data (IPB) is an significant metric reflecting computation intensity of a program. I measure the IPB of my solver with three different data sets as well as another two famous benchmark suites: SPECint 2006 and PARSEC for comparison (Thanks to my tutor for SPEC CPU 2006 is a commercial software). The logarithm of IPB is plotted in Figure~\ref{fig:IPB}. 
+Instruction per byte of input data (IPB) is an significant metric reflecting computation intensity of a program. I measure the IPB of my solver with three different data sets as well as another two famous benchmark suites: SPECint 2006 and PARSEC for comparison (Thanks to my tutor for SPEC CPU 2006 is a commercial software). 
+
+The logarithm of IPB is plotted in Figure~\ref{fig:IPB}. The curves in the graph show that \SA solver is more computation-intensive than predominant benchmark suites due to frequent random number generation and complicated exponential computation operations. Thus the clock frequency and the performance of ALU still have a significant effect. Moreover, high computation intensity was comprised partially by frequent floating point operations, which would be further discussed in Section~\ref{sec:comparison}.
 
 \begin{figure}
 \centering
@@ -55,7 +57,7 @@ Branch misprediction is also a significant contributor to stall cycle and slowdo
 \begin{compactitem}
 \item \textbf{One-bit strategy}: The simplest algorithm of branch prediction. A memory contains a bit indicating whether the branch is recently taken or not.
 \item \textbf{Two-bits strategy}: To remedy the shortcoming of one-bit strategy, 2-bit prediction scheme adopts a finite state automata in which a prediction must miss twice before a prediction is changed.
-\item \textbf{Two-level strategy}: Branch predictor that use the behavior of other branches to make a prediction called correlating predictors or two-level predictors. Existing correlating predictors add information about the behavior of the most recent branches to decide how to predict a given branch.
+\item \textbf{Two-level strategy}: Branch predictor that use the behavior of other branches to make a prediction called correlating predictors or two-level predictors. Existing correlating predictors add information about the behavior of the most recent branches to decide how to predict a given branch\cite{John:2006,Ribas:2006}.
 \end{compactitem}
 Figure~\ref{fig:predict} shows the branch misprediction rate under the three strategies. From the graph we could observe that the misprediction rate is a little higher than the average computation intensive programs ($>=0.3$) at simple prediction strategy of one-bit prediction. The misprediction rate decreases notably when more complex prediction algorithm is adopted like two-level strategy. The main part of the program includes a loop of which the condition consists of a randomly generated number thus the branch behavior is much more unpredictable. Considering the branch instruction takes a notable proportion in the overall instructions, more sophisticated branch prediction strategy should be adopted in the architectural design. 
 
@@ -70,8 +72,8 @@ Figure~\ref{fig:predict} shows the branch misprediction rate under the three str
 \label{sec:memory}
 The memory footprint is also a significant criterion of our program. We leverage the API provided by Intel Pin tools to conduct a series of experiments focused on memory-related behaviors. The metrics measured includes memory usage, cache miss rate, Lest-level Cache (LLC) miss rate under different sizes of LLC.
 
-\subsubsection{Memory Read and Write}
-I measured the memory usage of resident set size (RSS) of the program using the GNU tool /usr/bin/time. The maximum memory usage of RSS doesn't vary a lot among the three sets of input data and the average value is about 580KB. Considering the input file is text-based files, the small amount of memory usage could be ascribed to the I/O cache optimization. 
+\subsubsection{Memory Utilization}
+I measured the memory usage of resident set size (RSS) of the program using the GNU tool /usr/bin/time. The maximum memory usage of RSS doesn't vary a lot among the three sets of input data and the average value is about 580KB. Considering the input file is text-based files, the small amount of memory usage could be ascribed to the I/O cache optimization while the main loop of the solver does not involve much memory access operations. 
 
 \subsubsection{L1 and L2 Cache Miss Rate}
 This is another on-chip level metric reflecting the cache coherence of the program. The L1 and L2 on-chip cache miss rate is shown in Figure~\ref{fig:cache_miss}. Since the working set of solver is not very large, the pressure on cache and memory is not as severe as on instruction handling pipeline. Therefore, it is not necessary to enlarge the cache size further.
@@ -84,7 +86,9 @@ This is another on-chip level metric reflecting the cache coherence of the progr
 \end{figure}
 
 \subsubsection{Last Level Cache Miss Rate}
+As to explore the LLC miss rate, we adopt the Cachegring tool integrated in the Valgrind toolset to simulate different size of Last Level Set (LLC) from 1/32MB to 32MB and measure the LLC miss times per 1000 instructions under different sizes of LLC. 
 
+The result is plotted in Figure~\ref{fig:LLC_miss}. The statistics indicate that the LLC miss rate decreases with the increase of LLC size and maintains at a stable level when the LLC size exceeds the working set (1/8MB). Since the working set of the solver is much smaller compared to the size of CPU shared LLC (8MB), the current LLC could generally satisfy the requirement of the solver.
 \begin{figure}
 \centering
 \includegraphics[width=0.50\textwidth]{graph/LLC_miss.pdf}
@@ -98,16 +102,9 @@ The \SA solver involves a high percentage of floating point operations (FLOPs) w
 
 In this experiment, I implement a fixed point version of \SA solver based on the floating point one and measure the differences between them in respect of accuracy and performance. 
 
-The first topic we should discuss is the accuracy sacrifice of the fixed point version solver. The data file is chosen from the "Large" data sets (i.e. 1024 polynomial equations). Considering the average value of the resultant optimal points is about 5000, we set the threshold at 500. If the error range is larger than 500, we take this result is an "error". The error rate of different decimal bits is shown in Figure~\ref{fig:ER}.
-From the graph we could draw the conclusion that \SA solver suffers a comparatively high error rate, nevertheless which is still less than 10\%.
-As to Simulated Annealing, it takes cost functions in the form of
-polynomial equations and attempt to find the extreme point in given
-domains. Considering the simulation iteration is finite, the error
-threshold was set to 10\%, a solution would be marked "error" if exceeding the threshold. We take one thousand polynomial equations
-as an example, and the error rate is the proportion of error solutions.
-The high error rate of simulated annealing could be attributed to
-that the branch conditioner depends on a randomly-generated number which could change the expected interval in which locates the
-extreme point. 
+The first topic we should discuss is the accuracy sacrifice of the fixed point version solver. The data file is chosen from the "Large" data sets (i.e. 1024 polynomial equations). Considering the average value of the resultant optimal points is about 5000, we set the threshold at 500. If the error range is larger than 500, we take this result is an "error". The error rate of different decimal bits is shown in Figure~\ref{fig:ER}. From the figure we could observe that the best decimal bit number is 6 with the smallest error rate of 8.4\%, which is still a high value when scientific computation is taken into consideration. As to Simulated Annealing, it takes cost functions in the form of polynomial equations and attempt to find the extreme point in given domains. Considering the simulation iteration is finite, the error threshold was set to 10\%, a solution would be marked "error" if exceeding the threshold. We take one thousand polynomial equations as an example, and the error rate is the proportion of error solutions. The high error rate of simulated annealing could be attributed to that the branch conditioner depends on a randomly-generated number which could change the expected interval in which locates the extreme point.
+
+Furthermore, I examine the execution time of the two versions of which the result is plotted in Figure~\ref{fig:execution_time}. The speedup gained from substitution from floating point to fixed point is not as obvious as expected ($<=1.1$). Thus fixed point operation could not replace the FPU completely however partially substitution is acceptable when the requirement of accuracy is not very strict.  
 
 \begin{figure}
 \centering
