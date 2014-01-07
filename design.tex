@@ -1,17 +1,17 @@
 \section{Design}
 \label{sec:design}
 \subsection{Solver Overview}
-The \SA polynomial solver is implemented in ANSI C language under GNU/Linux system with total 146 lines of code. The solver reads the input data from text files including the coefficients of the polynomial equations and calculate the optimal solution (extreme point) of each equation using \SA with given initial and final temperature. The result of each equation would be recorded in the output files.
-\subsection{Input Data}
+The \SA polynomial solver is implemented in ANSI C language under GNU/Linux system with total 146 lines of code. The solver reads the input data from text files including the coefficients of the polynomials and calculate the optimal solution (extreme minimal point) of each polynomial using \SA with given initial and final temperature. The result of each polynomial would be recorded in the output files.
+\subsection{Input and Output Data}
 A typical record in the input data file is like this:
 $$[-9397.819, 602.181] -799.515 -687.799 -411.936$$
-The two numbers in the brackets define the domain of the extreme point, i.e. the solver would only search the optimal solution within this domain. The following several numbers define the coefficients in descending order. For instance, the record above indicates an equation of:
+The two numbers in the brackets define the domain of the extreme point, i.e. the solver would only search the optimal solution within this domain. The following several numbers define the coefficients in descending order. For instance, the record above indicates an expression of:
 $$f(x) = -799.515x^2-687.799x-411.936$$
-where $x\in[-9397.819, 602.181]$. The format of input data is very simple thus users could easily add the coefficients of their own polynomial equations.
+where $x\in[-9397.819, 602.181]$. The format of input data is very simple thus users could easily add the coefficients of their own polynomial expressions.
 
 Similarly, the format of the output is like this:
 $$x = -0.986, cost(x) = -2.928e+03$$
-This means the optimal solution and the corresponding cost of the function.
+This means the optimal solution of extreme minimal point and the corresponding minimal cost of the function.
 \subsection{Parameters}
 The usage of the main program is as follows:
 \begin{verbatim}

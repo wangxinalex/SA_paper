@@ -1,6 +1,6 @@
 \section{Experiment and Analysis}
 \label{sec:experiment}
-The following experiment will measure several architectural-independent metrics of \SA solver and evaluate the architectural characteristics. Section~\ref{sec:setup} will introduce the experiment environment first. The experiment would be classified into three categories: Section~\ref{sec:computation} analyzes the computation resource related metrics including various instruction ratio, branch misprediction rate, floating point operation ratio, etc. Section~\ref{sec:memory} presents the result of memory footprint including the memory utilization, memory-related instruction ratio and cache miss rate. Section~\ref{sec:comparison} will make comparison of the two versions of \SA solvers with respect to the decrease of accuracy and the change of performance.
+The following experiment will measure several architecture-independent metrics of \SA solver and evaluate the architectural characteristics. Section~\ref{sec:setup} will introduce the experiment environment first. The experiment would be classified into four categories: Section~\ref{sec:parameter} would explore the relationship between the parameter configuration and the execution time as well as the accuracy. Section~\ref{sec:computation} analyzes the computation resource related metrics including various instruction ratio, branch misprediction rate, floating point operation ratio, etc. Section~\ref{sec:memory} presents the result of memory footprint including the memory utilization, memory-related instruction ratio and cache miss rate. Section~\ref{sec:comparison} will make comparison of the two versions of \SA solvers with respect to the decrease of accuracy and the influence on performance.
 \subsection{Experiment Setup}
 \label{sec:setup}
 The experiment is carried out by a C-language \SA solver under 32-bit GNU/Linux 2.6.43. The CPU is Intel Core i7-2600@3.40GHz with 4 cores. L1 cache includes a 4 $\times$ 32 KB instruction cache and 4 $\times$ 32 KB data cache. L2 cache is 4 $\times$ 256 KB while the shared L3 cache is 8 MB. The input data sets were generated randomly and classified into three categories according to different sizes as in Table~\ref{tab:sizes}.
@@ -8,7 +8,7 @@ The experiment is carried out by a C-language \SA solver under 32-bit GNU/Linux 
 \begin{table}
   \centering
   \begin{tabular}{|l|l|l|}\hline
-  \textbf{Data Set} & \textbf{Text file size} & \textbf{Number of equations}\\\hline
+  \textbf{Data set} & \textbf{Text file size} & \textbf{Number of polynomials}\\\hline
   Small & 19KB & 128 \\\hline
   Middle&127KB&512\\\hline
   Large&148KB&1024\\\hline
@@ -16,13 +16,43 @@ The experiment is carried out by a C-language \SA solver under 32-bit GNU/Linux 
   \caption{Size of different data sets}\label{tab:sizes}
 \end{table}
 
+\subsection{Parameter Configuration and Accuracy}
+\label{sec:parameter}
+As is introduced in Section~\ref{sec:design}, the solver involves two primary variables: temperature fall and the coefficient of temperature decrease, namely $\lambda$. Both of the two variables decide the number of simulation loops of the annealing process. A simplified model in Equation~\ref{eq:SA_loops} could demonstrate the relationship approximately. This section will discuss the relationship between the parameters and the execution time as well as the accuracy.
+
+\begin{equation}
+\label{eq:SA_loops}
+N=\log_{\lambda}\frac{fin\_temp}{ini\_temp}
+\end{equation}
+
+\subsubsection{Temperature Fall}
+Temperature fall is decided by the initial temperature and the final temperature jointly. In this experiment, we change the ini\_temp to vary the temperature fall while measuring the execution time and accuracy. We take the highest accuracy (ini\_temp = $1e10$) as baseline and compare the normalized accuracy of different configurations. The resultant statistics is shown in Figure~\ref{fig:initemp}. From the graph we could draw that the execution time increases logarithmically with the temperature fall and the accuracy increases with the growth of temperature fall.
+
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.50\textwidth]{graph/ini_temp.pdf}
+\caption{The relationship between temperature fall and execution time and accuracy.}
+\label{fig:initemp}
+\end{figure}
+
+\subsubsection{Lambda Coefficient}
+The coefficient $\lambda$ also determines the number of simulation loops of the solver. The relation between $\lambda$ and execution as well as accuracy is shown in the Figure~\ref{fig:lambda}. From the graph we could see that both the execution time and the accuracy increase exponentially with the increase of $\lambda$.  
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.50\textwidth]{graph/lambda.pdf}
+\caption{The relationship between lambda and execution time and accuracy.}
+\label{fig:lambda}
+\end{figure} 
+
 \subsection{Computation Resource}
 \label{sec:computation}
-Computation Resource includes the ratio of different kind of instructions as well as other categories of CPU-related metrics such as memory/branch instruction ratios, branch misprediction rate under different prediction strategies etc. This part of metrics are measured by the binary instrument framework Pin-Tool and the performance evaluation tools VTune Amplifier provided by Intel. The following statistics are collected by running the solver using the different data sets except where noted.
+Computation Resource includes the ratio of different kind of instructions as well as other categories of CPU-related metrics such as memory/branch instruction ratios, IPC and MPC, branch misprediction rate under different prediction strategies etc. This part of metrics are measured by the binary instrument framework Pin-Tool and the performance evaluation tools VTune Amplifier provided by Intel. The following statistics are collected by running the solver using the different data sets except where noted.
 \subsubsection{Instruction Ratio}
-In this part I measure the ratio of memory and branch related instructions to reveal the effect of jump/branch instructions to the overall performance. The statistics is shown in the Figure~\ref{fig:ratio}. From the graph we could observe that the memory ratio is at a high level($>=40\%$) while the branch-related instructions take about 20\% of the overall instructions. This phenomenon could be ascribed to the frequent condition judgement of temperature change. High percentage of memory/branch instructions require the processor to be more efficient on branch prediction and memory access bandwidth optimization.
+In this part I measure the ratio of memory and branch related instructions to reveal the effect of jump/branch instructions to the overall performance. The statistics is shown in Figure~\ref{fig:ratio}. From the graph we could observe that the memory ratio is at a high level ($>=40\%$) while the branch-related instructions take about 20\% of the overall instructions. This phenomenon could be ascribed to the frequent condition judgment of temperature change. High percentage of memory/branch instructions require the processor to be more efficient on branch prediction and memory access bandwidth optimization.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/ins_ratio.pdf}
 \caption{Instruction Ratio.}
@@ -30,9 +60,9 @@ In this part I measure the ratio of memory and branch related instructions to re
 \end{figure}
 
 \subsubsection{IPC and MPC}
-In order to excavate the parallelism potential of the \SA solver, I measured the instruction-level parallelism (ILP) and memory-level parallelism (MLP) which are revealed by instruction per cycle (IPC) and memory access per cycle (MPC) respectively. The result is shown in Figure~\ref{fig:ipc_mpc}, from which we could find that the both the IPC and MPC are maintained at a low level. The low level of parallelism indicates that the \SA solvers could be transplanted into in-order processors to save the extra overhead brought by processors with out-of-order issue units such as branch-misprediction, pipeline hazard and memory access scheduling. 
+In order to excavate the parallelism potential of the \SA solver, I measured the instruction-level parallelism (ILP) and memory-level parallelism (MLP) which are revealed by instruction per cycle (IPC) and memory access per cycle (MPC) respectively. The result is shown in Figure~\ref{fig:ipc_mpc}, from which we could find that both the IPC and MPC are maintained at a low level. The low level of parallelism indicates that the \SA solvers could be transplanted onto in-order processors to save the extra overhead brought by processors with out-of-order issue units such as branch-misprediction, pipeline hazard and memory access scheduling.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/IPC_MPC.pdf}
 \caption{Instruction per Cycle and Memory Access per 1000 Cycles.}
@@ -40,11 +70,11 @@ In order to excavate the parallelism potential of the \SA solver, I measured the
 \end{figure}
 
 \subsubsection{IPB}
-Instruction per byte of input data (IPB) is an significant metric reflecting computation intensity of a program. I measure the IPB of my solver with three different data sets as well as another two famous benchmark suites: SPECint 2006 and PARSEC for comparison (Thanks to my tutor for SPEC CPU 2006 is a commercial software). 
+Instruction per byte of input data (IPB) is a significant metric reflecting computation intensity of a program. I measure the IPB of my solver with three different data sets as well as another two famous benchmark suites: SPECint 2006 and PARSEC for comparison (Thanks to my tutor for SPEC CPU 2006 is a commercial software).
 
-The logarithm of IPB is plotted in Figure~\ref{fig:IPB}. The curves in the graph show that \SA solver is more computation-intensive than predominant benchmark suites due to frequent random number generation and complicated exponential computation operations. Thus the clock frequency and the performance of ALU still have a significant effect. Moreover, high computation intensity was comprised partially by frequent floating point operations, which would be further discussed in Section~\ref{sec:comparison}.
+The 10-based logarithm of IPB is plotted in Figure~\ref{fig:IPB}. The columns in the graph show that \SA solver is more computation-intensive than predominant benchmark suites due to frequent random number generation and complicated exponential computation operations. Thus the clock frequency and the performance of ALU still have a significant effect. Moreover, high computation intensity was comprised partially by frequent floating point operations, which would be further discussed in Section~\ref{sec:comparison}.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/IPB.pdf}
 \caption{Instruction per Byte.}
@@ -52,16 +82,16 @@ The logarithm of IPB is plotted in Figure~\ref{fig:IPB}. The curves in the graph
 \end{figure}
 
 \subsubsection{Branch Misprediction Ratio }
-Branch misprediction is also a significant contributor to stall cycle and slowdown of the instruction. Modern processor chips adopt different prediction strategies to prevent the miss penalty of cache miss. In this experiment we simulate three different prediction algorithms: one-bit, two-bits and two-level strategy and measure the branch misprediction rate respectively.
+Branch misprediction is also a significant contributor to stall cycle and slowdown of the instruction. Modern processor chips adopt different prediction strategies to prevent the miss penalty of cache miss. In this experiment we simulate three different prediction algorithms in the Pin instrumentation framework: one-bit, two-bit and two-level strategy and measure the branch misprediction rate respectively.
 
 \begin{compactitem}
 \item \textbf{One-bit strategy}: The simplest algorithm of branch prediction. A memory contains a bit indicating whether the branch is recently taken or not.
-\item \textbf{Two-bits strategy}: To remedy the shortcoming of one-bit strategy, 2-bit prediction scheme adopts a finite state automata in which a prediction must miss twice before a prediction is changed.
-\item \textbf{Two-level strategy}: Branch predictor that use the behavior of other branches to make a prediction called correlating predictors or two-level predictors. Existing correlating predictors add information about the behavior of the most recent branches to decide how to predict a given branch\cite{John:2006,Ribas:2006}.
+\item \textbf{Two-bit strategy}: To remedy the shortcoming of one-bit strategy, 2-bit prediction scheme adopts a finite state automata in which a prediction must miss twice before a prediction is changed.
+\item \textbf{Two-level strategy}: Branch predictor that uses the behavior of other branches to make a prediction called correlating predictors or two-level predictors. Existing correlating predictors add information about the behavior of the most recent branches to decide how to predict a given branch~\cite{John:2006,Ribas:2006}.
 \end{compactitem}
-Figure~\ref{fig:predict} shows the branch misprediction rate under the three strategies. From the graph we could observe that the misprediction rate is a little higher than the average computation intensive programs ($>=0.3$) at simple prediction strategy of one-bit prediction. The misprediction rate decreases notably when more complex prediction algorithm is adopted like two-level strategy. The main part of the program includes a loop of which the condition consists of a randomly generated number thus the branch behavior is much more unpredictable. Considering the branch instruction takes a notable proportion in the overall instructions, more sophisticated branch prediction strategy should be adopted in the architectural design. 
+Figure~\ref{fig:predict} shows the branch misprediction rate under the three strategies. From the graph we could observe that the misprediction rate is a little higher than the average computation intensive programs ($>=0.3$) at simple prediction strategy of one-bit prediction. The misprediction rate decreases notably when more complex prediction algorithm is adopted like two-level strategy. The main part of the program includes a loop of which the condition consists of a randomly generated number thus the branch behavior is much more unpredictable. Considering the branch instruction takes a notable proportion in the overall instructions, more sophisticated branch prediction strategy should be adopted in the architectural design.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/predict.pdf}
 \caption{Branch Misprediction Rate under Different Prediction Strategies.}
@@ -70,15 +100,15 @@ Figure~\ref{fig:predict} shows the branch misprediction rate under the three str
 
 \subsection{Memory Footprint}
 \label{sec:memory}
-The memory footprint is also a significant criterion of our program. We leverage the API provided by Intel Pin tools to conduct a series of experiments focused on memory-related behaviors. The metrics measured includes memory usage, cache miss rate, Lest-level Cache (LLC) miss rate under different sizes of LLC.
+The memory footprint is also a significant criterion of our program. We leverage the API provided by Intel Pin tools to conduct a series of experiments focused on memory-related behaviors. The metrics measured includes memory usage, cache miss rate, Last-level Cache (LLC) miss rate under different sizes of LLC.
 
 \subsubsection{Memory Utilization}
-I measured the memory usage of resident set size (RSS) of the program using the GNU tool /usr/bin/time. The maximum memory usage of RSS doesn't vary a lot among the three sets of input data and the average value is about 580KB. Considering the input file is text-based files, the small amount of memory usage could be ascribed to the I/O cache optimization while the main loop of the solver does not involve much memory access operations. 
+I measured the memory usage of resident set size (RSS) of the program using the GNU tool /usr/bin/time. The maximum memory usage of RSS doesn't vary a lot among the three sets of input data and the average value is about 580KB. Considering the input file is text-based files, the small amount of memory usage could be ascribed to the I/O cache optimization while the main loop of the solver does not involve much memory access operations.
 
 \subsubsection{L1 and L2 Cache Miss Rate}
 This is another on-chip level metric reflecting the cache coherence of the program. The L1 and L2 on-chip cache miss rate is shown in Figure~\ref{fig:cache_miss}. Since the working set of solver is not very large, the pressure on cache and memory is not as severe as on instruction handling pipeline. Therefore, it is not necessary to enlarge the cache size further.
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/cache_miss.pdf}
 \caption{L1 and L2 Cache Miss Time per K Instructions.}
@@ -86,10 +116,10 @@ This is another on-chip level metric reflecting the cache coherence of the progr
 \end{figure}
 
 \subsubsection{Last Level Cache Miss Rate}
-As to explore the LLC miss rate, we adopt the Cachegring tool integrated in the Valgrind toolset to simulate different size of Last Level Set (LLC) from 1/32MB to 32MB and measure the LLC miss times per 1000 instructions under different sizes of LLC. 
+As to explore the LLC miss rate, we adopt the Cachegring tool integrated in the Valgrind toolset to simulate different size of Last Level Set (LLC) from 1/32MB to 32MB and measure the LLC miss times per 1000 instructions under different sizes of LLC.
 
 The result is plotted in Figure~\ref{fig:LLC_miss}. The statistics indicate that the LLC miss rate decreases with the increase of LLC size and maintains at a stable level when the LLC size exceeds the working set (1/8MB). Since the working set of the solver is much smaller compared to the size of CPU shared LLC (8MB), the current LLC could generally satisfy the requirement of the solver.
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/LLC_miss.pdf}
 \caption{Last Level Cache Miss per K Instructions.}
@@ -97,25 +127,26 @@ The result is plotted in Figure~\ref{fig:LLC_miss}. The statistics indicate that
 \end{figure}
 
 \subsection{Comparison of Two Versions}
-\label{sec:comparison} 
-The \SA solver involves a high percentage of floating point operations (FLOPs) while floating point units (FPUs) are one of the most energy-consuming units in modern processor's architecture. As is measure by Pin tool, the FLOP in \SA solver takes up about 10\% of the total instructions, thus it is necessary to research whether the FPU could be replaced by fixed-point units (totally or partially) in order to save the computation resource. 
+\label{sec:comparison}
 
-In this experiment, I implement a fixed point version of \SA solver based on the floating point one and measure the differences between them in respect of accuracy and performance. 
+The \SA solver involves a high percentage of floating point operations (FLOPs) while floating point units (FPUs) are one of the most power-consuming units in modern processor architecture. As is measured by Pin tool, the FLOP in \SA solver takes up about 10\% of the total instructions, thus it is necessary to research whether the FPU could be replaced by fixed-point units (totally or partially) in order to save the computation resource.
 
-The first topic we should discuss is the accuracy sacrifice of the fixed point version solver. The data file is chosen from the "Large" data sets (i.e. 1024 polynomial equations). Considering the average value of the resultant optimal points is about 5000, we set the threshold at 500. If the error range is larger than 500, we take this result is an "error". The error rate of different decimal bits is shown in Figure~\ref{fig:ER}. From the figure we could observe that the best decimal bit number is 6 with the smallest error rate of 8.4\%, which is still a high value when scientific computation is taken into consideration. As to Simulated Annealing, it takes cost functions in the form of polynomial equations and attempt to find the extreme point in given domains. Considering the simulation iteration is finite, the error threshold was set to 10\%, a solution would be marked "error" if exceeding the threshold. We take one thousand polynomial equations as an example, and the error rate is the proportion of error solutions. The high error rate of simulated annealing could be attributed to that the branch conditioner depends on a randomly-generated number which could change the expected interval in which locates the extreme point.
+In this experiment, I implement a fixed point version of \SA solver based on the floating point one and measure the differences between them in respect of accuracy and performance.
 
-Furthermore, I examine the execution time of the two versions of which the result is plotted in Figure~\ref{fig:execution_time}. The speedup gained from substitution from floating point to fixed point is not as obvious as expected ($<=1.1$). Thus fixed point operation could not replace the FPU completely however partially substitution is acceptable when the requirement of accuracy is not very strict.  
+The first topic we should discuss is the accuracy sacrifice of the fixed point version solver. The data file is chosen from the "Large" data sets (i.e. 1024 polynomial expressions). Considering the average value of the resultant optimal points is about 5000, we set the threshold at 500. If the deviation range is larger than 500, we take this result is an "error". The error rate of different decimal bits is shown in Figure~\ref{fig:ER}. From the figure we could observe that the best decimal bit number is 6 with the smallest error rate of 8.4\%, which is still an unacceptable value when scientific computation is taken into consideration. The high error rate of simulated annealing could be attributed to that the branch conditioner depends on a randomly-generated number which could change the expected interval in which locates the extreme point.
 
-\begin{figure}
+Furthermore, I examine the execution time of the two versions of which the result is plotted in Figure~\ref{fig:execution_time}. The speedup gained from substitution from floating point to fixed point is not as obvious as expected ($<=1.1$). Thus fixed point operation could not replace the FPU completely however partially substitution is acceptable when the requirement of accuracy is not very strict.
+
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/ER.pdf}
 \caption{Error Rate of Results between Floating and Fixed Point Version.}
 \label{fig:ER}
 \end{figure}
 
-\begin{figure}
+\begin{figure}[ht]
 \centering
 \includegraphics[width=0.50\textwidth]{graph/execution_time.pdf}
 \caption{Execution Time of Floating and Fixed Point Version.}
 \label{fig:execution_time}
-\end{figure}
+\end{figure} 
